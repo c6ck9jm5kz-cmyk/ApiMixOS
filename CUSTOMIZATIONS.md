@@ -190,6 +190,25 @@ Optional environment variables:
 - Uses the existing Openai Video polling and authenticated content-cache path
   for `GET /v1/videos/{task_id}` and `/content`.
 
+### Veo / Omni profile for Openai Video
+
+- For a type 60 `Openai Video` channel, select **Veo / Omni (reference_images)**
+  in Channel Extra Settings for upstreams that serve `veo-3.1-lite`,
+  `veo-3.1-fast`, `veo-3.1-quality`, and `omni-1.1-flash` through
+  `POST /v1/videos` with `reference_images`.
+- Converts gateway `images`, `start_frame_url`, and `end_frame_url` (and the
+  provider-native `reference_images` strings or `{url, role}` objects) into
+  plain reference URLs or `first_frame` / `last_frame` role objects, and sends
+  `aspect_ratio`, `resolution`, and integer `duration`.
+- Enforces the documented limits before billing: Veo is 8 seconds at
+  720p/1080p; `quality` accepts frames but no reference images; Omni accepts
+  4/6/8/10 seconds at 720p with up to three reference images and no frames;
+  ratios are 16:9 or 9:16; frames cannot be mixed with reference images; a last
+  frame requires a first frame. Video continuation (`reference_videos`) is not
+  enabled yet.
+- Uses the existing Openai Video polling and local `/video-cache` result path,
+  so the provider's six-hour signed URL is never exposed.
+
 ## Grok Video native relay
 
 - Adds the independent `Grok Video` channel type `63` without changing the

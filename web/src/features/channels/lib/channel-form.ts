@@ -266,7 +266,7 @@ export const channelFormSchema = z
     system_prompt: z.string().optional(),
     system_prompt_override: z.boolean().optional(),
     openai_video_profile: z
-      .enum(['auto', 'seedance-2.5', 'starframe'])
+      .enum(['auto', 'seedance-2.5', 'starframe', 'veo-omni'])
       .optional(),
     minimax_video_prompt_enhance: z.boolean().optional(),
     // Type-specific settings (stored in settings JSON)
@@ -487,7 +487,11 @@ export function transformChannelToFormDefaults(
     pass_through_body_enabled: false,
     system_prompt: '',
     system_prompt_override: false,
-    openai_video_profile: 'auto' as 'auto' | 'seedance-2.5' | 'starframe',
+    openai_video_profile: 'auto' as
+      | 'auto'
+      | 'seedance-2.5'
+      | 'starframe'
+      | 'veo-omni',
     minimax_video_prompt_enhance: false,
   }
 
@@ -510,7 +514,7 @@ export function transformChannelToFormDefaults(
         pass_through_body_enabled: parsed.pass_through_body_enabled || false,
         system_prompt: parsed.system_prompt || '',
         system_prompt_override: parsed.system_prompt_override || false,
-        openai_video_profile: ['seedance-2.5', 'starframe'].includes(
+        openai_video_profile: ['seedance-2.5', 'starframe', 'veo-omni'].includes(
           parsed.openai_video_profile
         )
           ? parsed.openai_video_profile
@@ -659,7 +663,9 @@ export function buildSettingJSON(formData: ChannelFormValues): string {
 
   if (
     formData.type === CHANNEL_TYPE_OPENAI_VIDEO &&
-    ['seedance-2.5', 'starframe'].includes(formData.openai_video_profile || '')
+    ['seedance-2.5', 'starframe', 'veo-omni'].includes(
+      formData.openai_video_profile || ''
+    )
   ) {
     settingObj.openai_video_profile = formData.openai_video_profile
   }
