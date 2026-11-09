@@ -4136,6 +4136,10 @@ export function ChannelMutateDrawer({
                                             value: 'starframe',
                                             label: t('StarFrame API'),
                                           },
+                                          {
+                                            value: 'veo-omni',
+                                            label: t('Veo / Omni (reference_images)'),
+                                          },
                                         ]}
                                         value={field.value || 'auto'}
                                         onValueChange={field.onChange}
@@ -4160,11 +4164,18 @@ export function ChannelMutateDrawer({
                                             <SelectItem value='starframe'>
                                               {t('StarFrame API')}
                                             </SelectItem>
+                                            <SelectItem value='veo-omni'>
+                                              {t('Veo / Omni (reference_images)')}
+                                            </SelectItem>
                                           </SelectGroup>
                                         </SelectContent>
                                       </Select>
                                       <FormDescription>
-                                        {field.value === 'starframe'
+                                        {field.value === 'veo-omni'
+                                          ? t(
+                                              'Use for upstreams that serve Veo 3.1 and Omni through reference_images; frames are sent as first_frame/last_frame roles and per-model durations and resolutions are enforced.'
+                                            )
+                                          : field.value === 'starframe'
                                           ? t(
                                               'Use for StarFrame API (api.xzapi.vip); references, frames, aspect ratio, and client task IDs are converted to its native contract.'
                                             )

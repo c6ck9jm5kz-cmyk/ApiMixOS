@@ -95,30 +95,31 @@ describe('Dedicated upstream egress setting', () => {
 })
 
 describe('OpenAI Video protocol profile', () => {
-  test('serializes and restores the StarFrame profile', () => {
-    const settings = buildSettingJSON({
-      ...CHANNEL_FORM_DEFAULT_VALUES,
-      type: 60,
-      openai_video_profile: 'starframe',
+  for (const profile of ['starframe', 'veo-omni'] as const) {
+    test(`serializes and restores the ${profile} profile`, () => {
+      const settings = buildSettingJSON({
+        ...CHANNEL_FORM_DEFAULT_VALUES,
+        type: 60,
+        openai_video_profile: profile,
+      })
+      assert.equal(
+        (JSON.parse(settings) as Record<string, unknown>).openai_video_profile,
+        profile
+      )
+      const channel = {
+        ...({} as Channel),
+        setting: settings,
+        channel_info: {
+          is_multi_key: false,
+          multi_key_size: 0,
+          multi_key_polling_index: 0,
+          multi_key_mode: 'random',
+        },
+      } as Channel
+      assert.equal(
+        transformChannelToFormDefaults(channel).openai_video_profile,
+        profile
+      )
     })
-    assert.equal(
-      (JSON.parse(settings) as Record<string, unknown>).openai_video_profile,
-      'starframe'
-    )
-
-    const channel = {
-      ...({} as Channel),
-      setting: settings,
-      channel_info: {
-        is_multi_key: false,
-        multi_key_size: 0,
-        multi_key_polling_index: 0,
-        multi_key_mode: 'random',
-      },
-    } as Channel
-    assert.equal(
-      transformChannelToFormDefaults(channel).openai_video_profile,
-      'starframe'
-    )
-  })
+  }
 })

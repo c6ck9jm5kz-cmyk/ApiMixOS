@@ -78,6 +78,7 @@ type videoProfile struct {
 	validateSeed         bool
 	strictGridStrength   bool
 	starFrameContract    bool
+	veoOmniContract      bool
 }
 
 var defaultVideoProfile = videoProfile{
@@ -141,6 +142,23 @@ var starFrameVideoProfile = videoProfile{
 	supportsEndFrame:     true,
 	framesConflictImages: true,
 	starFrameContract:    true,
+}
+
+// veoOmniVideoProfile serves upstreams that expose Veo 3.1 and Omni through
+// one reference_images contract: untagged items are reference images, while
+// items tagged with role first_frame/last_frame are start and end frames.
+var veoOmniVideoProfile = videoProfile{
+	name:                 "veo-omni",
+	defaultDuration:      8,
+	allowedDurations:     []int{8},
+	maxReferenceImages:   3,
+	defaultResolution:    "720p",
+	allowedResolutions:   []string{"720p", "1080p"},
+	allowedRatios:        []string{"16:9", "9:16"},
+	supportsFrames:       true,
+	supportsEndFrame:     true,
+	framesConflictImages: true,
+	veoOmniContract:      true,
 }
 
 type multimodalContent struct {
@@ -256,6 +274,16 @@ func (a *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycom
 		audios = appendUniqueValues(audios, referenceAudios)
 	}
 
+	var veoOmniFirstFrame, veoOmniLastFrame string
+	if profile.veoOmniContract {
+		referenceImages, firstFrame, lastFrame, referenceErr := parseVeoOmniReferenceImages(payload["reference_images"])
+		if referenceErr != nil {
+			return service.TaskErrorWrapperLocal(referenceErr, "invalid_reference_images", http.StatusBadRequest)
+		}
+		images = appendUniqueValues(images, referenceImages)
+		veoOmniFirstFrame, veoOmniLastFrame = firstFrame, lastFrame
+	}
+
 	var nativeContent *multimodalContent
 	if profile.nativeMultimodalMode {
 		nativeContent, err = parseMultimodalContent(payload)
@@ -292,6 +320,12 @@ func (a *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycom
 		}
 	}
 
+	if profile.veoOmniContract && profile.maxReferenceImages == 0 && len(images) > 0 {
+		return service.TaskErrorWrapperLocal(fmt.Errorf("%s does not support reference images; use first_frame/last_frame instead", modelName), "invalid_images", http.StatusBadRequest)
+	}
+	if profile.veoOmniContract && len(videos)+len(audios) > 0 {
+		return service.TaskErrorWrapperLocal(fmt.Errorf("reference videos and audios are not supported by this video channel"), "invalid_references", http.StatusBadRequest)
+	}
 	if len(images) > profile.maxReferenceImages {
 		return service.TaskErrorWrapperLocal(fmt.Errorf("images supports at most %d reference images", profile.maxReferenceImages), "invalid_images", http.StatusBadRequest)
 	}
@@ -310,6 +344,13 @@ func (a *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycom
 
 	startFrameURL := payloadString(payload, "start_frame_url")
 	endFrameURL := payloadString(payload, "end_frame_url")
+	if veoOmniFirstFrame != "" || veoOmniLastFrame != "" {
+		if startFrameURL != "" || endFrameURL != "" {
+			return service.TaskErrorWrapperLocal(fmt.Errorf("reference_images frame roles cannot be combined with start_frame_url or end_frame_url"), "invalid_frame_parameters", http.StatusBadRequest)
+		}
+		startFrameURL = veoOmniFirstFrame
+		endFrameURL = veoOmniLastFrame
+	}
 	var starFrameFrames any
 	if profile.starFrameContract {
 		starFrameFrames = payload["frames"]
@@ -472,6 +513,9 @@ func (a *TaskAdaptor) ValidateRequestAndSetAction(c *gin.Context, info *relaycom
 		if len(audios) > 0 {
 			upstreamPayload["audios"] = audios
 		}
+	}
+	if profile.veoOmniContract {
+		upstreamPayload = buildVeoOmniPayload(modelName, prompt, duration, ratio, resolution, images, startFrameURL, endFrameURL)
 	}
 	if profile.starFrameContract {
 		upstreamPayload = buildStarFramePayload(payload, modelName, prompt, duration, ratio, resolution, images, videos, audios, starFrameReferences, starFrameFrames, startFrameURL, endFrameURL)
@@ -949,6 +993,84 @@ func parseStarFrameFrames(value any) (string, string, error) {
 	return firstFrame, lastFrame, nil
 }
 
+// parseVeoOmniReferenceImages reads the provider-native reference_images
+// array. Items are URL strings or {url, role} objects; role first_frame and
+// last_frame select frames, an empty role (or reference) is a reference image.
+func parseVeoOmniReferenceImages(value any) ([]string, string, string, error) {
+	if value == nil {
+		return nil, "", "", nil
+	}
+	items, ok := value.([]any)
+	if !ok {
+		return nil, "", "", fmt.Errorf("reference_images must be an array")
+	}
+	var references []string
+	var firstFrame, lastFrame string
+	for index, item := range items {
+		var imageURL, role string
+		switch typed := item.(type) {
+		case string:
+			imageURL = strings.TrimSpace(typed)
+		case map[string]any:
+			imageURL = payloadString(typed, "url")
+			if imageURL == "" {
+				imageURL = payloadString(typed, "image_url")
+			}
+			role = strings.ToLower(payloadString(typed, "role"))
+		default:
+			return nil, "", "", fmt.Errorf("reference_images[%d] must be a URL string or an object with url", index)
+		}
+		if imageURL == "" {
+			return nil, "", "", fmt.Errorf("reference_images[%d].url is required", index)
+		}
+		switch role {
+		case "", "reference", "reference_image":
+			references = appendUnique(references, imageURL)
+		case "first_frame":
+			if firstFrame != "" {
+				return nil, "", "", fmt.Errorf("reference_images accepts only one first_frame")
+			}
+			firstFrame = imageURL
+		case "last_frame":
+			if lastFrame != "" {
+				return nil, "", "", fmt.Errorf("reference_images accepts only one last_frame")
+			}
+			lastFrame = imageURL
+		default:
+			return nil, "", "", fmt.Errorf("reference_images[%d].role must be first_frame or last_frame", index)
+		}
+	}
+	return references, firstFrame, lastFrame, nil
+}
+
+// buildVeoOmniPayload writes the provider contract: frames become role-tagged
+// reference_images items and plain references stay URL strings.
+func buildVeoOmniPayload(modelName, prompt string, duration int, ratio, resolution string, images []string, startFrameURL, endFrameURL string) map[string]any {
+	payload := map[string]any{
+		"model":        modelName,
+		"prompt":       prompt,
+		"duration":     duration,
+		"aspect_ratio": ratio,
+		"resolution":   resolution,
+	}
+	if startFrameURL != "" {
+		frames := []any{map[string]any{"url": startFrameURL, "role": "first_frame"}}
+		if endFrameURL != "" {
+			frames = append(frames, map[string]any{"url": endFrameURL, "role": "last_frame"})
+		}
+		payload["reference_images"] = frames
+		return payload
+	}
+	if len(images) > 0 {
+		references := make([]any, 0, len(images))
+		for _, image := range images {
+			references = append(references, image)
+		}
+		payload["reference_images"] = references
+	}
+	return payload
+}
+
 func appendUniqueValues(values []string, candidates []string) []string {
 	for _, candidate := range candidates {
 		values = appendUnique(values, candidate)
@@ -1025,6 +1147,9 @@ func videoProfileForRequest(info *relaycommon.RelayInfo, modelNames ...string) v
 		if normalizeOpenAIVideoProfile(info.ChannelSetting.OpenAIVideoProfile) == "starframe" {
 			return starFrameProfileForModels(modelNames...)
 		}
+		if normalizeOpenAIVideoProfile(info.ChannelSetting.OpenAIVideoProfile) == "veo-omni" {
+			return veoOmniProfileForModels(modelNames...)
+		}
 		for _, modelName := range modelNames {
 			if isQYSeedance25ModelName(modelName) {
 				return qySeedance25VideoProfile
@@ -1048,6 +1173,8 @@ func normalizeOpenAIVideoProfile(profile string) string {
 	switch normalized {
 	case "starframe", "star-frame", "xzapi", "xzapi.vip":
 		return "starframe"
+	case "veo-omni", "veo", "omni":
+		return "veo-omni"
 	case "qy-seedance-2.5":
 		return "qy-seedance-2.5"
 	case "seedance-2.5", "seedance2.5", "sd-2.5", "sd2.5", "video-v3":
@@ -1107,6 +1234,28 @@ func starFrameProfileForModels(modelNames ...string) videoProfile {
 	return profile
 }
 
+// veoOmniProfileForModels applies the documented per-model limits: Veo is
+// fixed at 8 seconds with 720p/1080p, quality accepts frames but no reference
+// images, and Omni accepts 4/6/8/10 seconds at 720p without frames.
+func veoOmniProfileForModels(modelNames ...string) videoProfile {
+	profile := veoOmniVideoProfile
+	for _, modelName := range modelNames {
+		normalized := strings.ToLower(strings.TrimSpace(modelName))
+		if strings.Contains(normalized, "omni") {
+			profile.allowedDurations = []int{4, 6, 8, 10}
+			profile.allowedResolutions = []string{"720p"}
+			profile.supportsFrames = false
+			profile.supportsEndFrame = false
+			return profile
+		}
+		if strings.Contains(normalized, "quality") {
+			profile.maxReferenceImages = 0
+			return profile
+		}
+	}
+	return profile
+}
+
 func videoProfileForModels(modelNames ...string) videoProfile {
 	for _, modelName := range modelNames {
 		if isQYSeedance25ModelName(modelName) {
@@ -1145,6 +1294,10 @@ func normalizeDuration(payload map[string]any, profile videoProfile) (int, error
 		return profile.defaultDuration, nil
 	}
 
+	if text, ok := value.(string); ok {
+		// Providers document "8s" as an accepted spelling of 8 seconds.
+		value = strings.TrimSuffix(strings.ToLower(strings.TrimSpace(text)), "s")
+	}
 	duration, err := parseInteger(value)
 	if err != nil {
 		return 0, fmt.Errorf("duration must be an integer")
@@ -1155,7 +1308,11 @@ func normalizeDuration(payload map[string]any, profile videoProfile) (int, error
 				return duration, nil
 			}
 		}
-		return 0, fmt.Errorf("duration must be one of 5, 10, or 15 seconds")
+		allowed := make([]string, 0, len(profile.allowedDurations))
+		for _, allowedDuration := range profile.allowedDurations {
+			allowed = append(allowed, strconv.Itoa(allowedDuration))
+		}
+		return 0, fmt.Errorf("duration must be one of %s seconds", strings.Join(allowed, ", "))
 	}
 	if duration < profile.minDuration || duration > profile.maxDuration {
 		return 0, fmt.Errorf("duration must be between %d and %d seconds", profile.minDuration, profile.maxDuration)
@@ -1204,12 +1361,18 @@ func normalizeVideoFormat(payload map[string]any, profile videoProfile) (string,
 		ratio = "16:9"
 	}
 	if !isSupportedProfileRatio(ratio, profile) {
+		if len(profile.allowedRatios) > 0 {
+			return "", "", "", fmt.Errorf("ratio must be one of %s", strings.Join(profile.allowedRatios, ", "))
+		}
 		if profile.allowAutoRatio {
 			return "", "", "", fmt.Errorf("ratio must be one of auto, 21:9, 16:9, 4:3, 1:1, 3:4, or 9:16")
 		}
 		return "", "", "", fmt.Errorf("ratio must be one of 21:9, 16:9, 4:3, 1:1, 3:4, or 9:16")
 	}
 	if profile.forceResolution == "" && !isSupportedProfileResolution(resolution, profile) {
+		if len(profile.allowedResolutions) > 0 {
+			return "", "", "", fmt.Errorf("resolution must be one of %s", strings.Join(profile.allowedResolutions, ", "))
+		}
 		return "", "", "", fmt.Errorf("resolution must be one of 480p, 720p, 1080p, 2K, or 4K")
 	}
 	return ratio, resolution, canonicalSize(ratio, resolution), nil
