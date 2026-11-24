@@ -27,6 +27,7 @@ import type {
   UserFormData,
   ManageUserAction,
   ManageUserQuotaPayload,
+  BatchDeleteUsersResult,
   ApiResponse,
 } from './types'
 
@@ -114,6 +115,16 @@ export async function updateUser(
  */
 export async function deleteUser(id: number): Promise<ApiResponse> {
   const res = await api.delete(`/api/user/${id}/`)
+  return res.data
+}
+
+/**
+ * Delete several users at once (hard delete). Failures are reported per user.
+ */
+export async function batchDeleteUsers(
+  ids: number[]
+): Promise<ApiResponse<BatchDeleteUsersResult>> {
+  const res = await api.post('/api/user/batch_delete', { ids })
   return res.data
 }
 
