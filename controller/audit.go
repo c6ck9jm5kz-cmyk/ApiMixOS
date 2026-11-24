@@ -28,6 +28,8 @@ var auditContentTemplates = map[string]string{
 	"user.passkey_register": "Registered a passkey",
 	"user.passkey_delete":   "Deleted a passkey",
 	"user.reset_passkey":    "Reset the user passkey",
+	"model_doc.save":        "Updated API doc for model ${model_name}",
+	"model_doc.delete":      "Reset API doc for model ${model_name} to auto-generated",
 	"option.update":         "Updated system setting ${key}",
 
 	"channel.create":             "Created channel ${name} (type ${type}, count ${count})",

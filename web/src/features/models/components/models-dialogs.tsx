@@ -23,6 +23,7 @@ import { SyncWizardDialog } from './dialogs/sync-wizard-dialog'
 import { UpstreamConflictDialog } from './dialogs/upstream-conflict-dialog'
 import { VendorMutateDialog } from './dialogs/vendor-mutate-dialog'
 import { ModelCommercialDrawer } from './drawers/model-commercial-drawer'
+import { ModelDocDrawer } from './drawers/model-doc-drawer'
 import { ModelMutateDrawer } from './drawers/model-mutate-drawer'
 import { useModels } from './models-provider'
 
@@ -47,6 +48,11 @@ export function ModelsDialogs() {
 
       <ModelCommercialDrawer
         open={open === 'model-commercial'}
+        onOpenChange={(v) => !v && setOpen(null)}
+        model={currentRow}
+      />
+      <ModelDocDrawer
+        open={open === 'model-doc'}
         onOpenChange={(v) => !v && setOpen(null)}
         model={currentRow}
       />

@@ -43,6 +43,7 @@ type DialogType =
   | 'prefill-groups'
   | 'description'
   | 'model-commercial'
+  | 'model-doc'
   | null
 
 type ModelsContextType = {

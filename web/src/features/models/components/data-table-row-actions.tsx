@@ -18,7 +18,14 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { useQueryClient } from '@tanstack/react-query'
 import type { Row } from '@tanstack/react-table'
-import { CircleDollarSign, Pencil, Power, PowerOff, Trash2 } from 'lucide-react'
+import {
+  BookText,
+  CircleDollarSign,
+  Pencil,
+  Power,
+  PowerOff,
+  Trash2,
+} from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -69,6 +76,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
     setCurrentRow(model)
     setOpen('model-commercial')
   }
+  const handleApiDoc = () => {
+    setCurrentRow(model)
+    setOpen('model-doc')
+  }
 
   const toggleLabel = isEnabled ? t('Disable') : t('Enable')
 
@@ -104,6 +115,21 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           <CircleDollarSign />
         </TooltipTrigger>
         <TooltipContent>{t('Pricing and cost')}</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant='ghost'
+              size='icon-sm'
+              onClick={handleApiDoc}
+              aria-label={t('API doc')}
+            />
+          }
+        >
+          <BookText />
+        </TooltipTrigger>
+        <TooltipContent>{t('API doc')}</TooltipContent>
       </Tooltip>
 
       <Tooltip>
