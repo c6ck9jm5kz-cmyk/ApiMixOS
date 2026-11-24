@@ -2235,6 +2235,7 @@
     "Group name cannot be changed when editing.": "Имя группы нельзя изменить при редактировании.",
     "Group prices cannot be expanded because this expression is not a standard tiered pricing expression.": "Цены по группам нельзя развернуть, потому что это не стандартное выражение тарифов по уровням.",
     "Group Pricing": "Тарификация групп",
+    "Group Management": "Управление группами",
     "Group pricing usage guide": "Руководство по групповой тарификации",
     "group ratio": "коэффициент группы",
     "Group Ratio": "Групповой коэффициент",

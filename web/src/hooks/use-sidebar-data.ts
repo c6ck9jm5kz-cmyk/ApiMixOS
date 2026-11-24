@@ -140,6 +140,10 @@ export function useSidebarData(): SidebarData {
                 url: '/models/costs',
               },
               {
+                title: t('Group Management'),
+                url: '/models/groups',
+              },
+              {
                 title: t('Cost & Profit'),
                 url: '/cost-statistics',
                 icon: CircleDollarSign,

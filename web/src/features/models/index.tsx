@@ -19,14 +19,31 @@ For commercial licensing, please contact support@quantumnous.com
 import { useQueryClient } from '@tanstack/react-query'
 import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SectionPageLayout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useSystemOptions } from '@/features/system-settings/hooks/use-system-options'
+import {
+  defaultBillingSettings,
+  getGroupDefaults,
+  getModelDefaults,
+} from '@/features/system-settings/billing/defaults'
+import { SettingsPageProvider } from '@/features/system-settings/components/settings-page-context'
+import {
+  getOptionValue,
+  useSystemOptions,
+} from '@/features/system-settings/hooks/use-system-options'
 import { ModelCostSection } from '@/features/system-settings/models/model-cost-section'
+import { RatioSettingsCard } from '@/features/system-settings/models/ratio-settings-card'
+import type { BillingSettings } from '@/features/system-settings/types'
 
 import { listDeployments } from './api'
 import { DeploymentAccessGuard } from './components/deployment-access-guard'
@@ -56,6 +73,9 @@ const SECTION_META: Record<ModelsSectionId, { titleKey: string }> = {
   costs: {
     titleKey: 'Upstream Model Costs',
   },
+  groups: {
+    titleKey: 'Group Management',
+  },
 }
 
 function ModelsContent() {
@@ -68,6 +88,10 @@ function ModelsContent() {
 
   // Deployment create dialog state
   const [createDeploymentOpen, setCreateDeploymentOpen] = useState(false)
+  // Settings editors (group ratios) portal their save button into this slot
+  const [settingsActions, setSettingsActions] = useState<HTMLDivElement | null>(
+    null
+  )
 
   // keep context state in sync (for components that rely on it)
   useEffect(() => {
@@ -97,6 +121,13 @@ function ModelsContent() {
         {t('Create deployment')}
       </Button>
     )
+  } else if (activeSection === 'groups') {
+    actions = (
+      <div
+        ref={setSettingsActions}
+        className='flex flex-wrap items-center justify-end gap-2'
+      />
+    )
   }
 
   let sectionContent: ReactNode
@@ -104,6 +135,12 @@ function ModelsContent() {
     sectionContent = <ModelsTable />
   } else if (activeSection === 'deployments') {
     sectionContent = <DeploymentsSection />
+  } else if (activeSection === 'groups') {
+    sectionContent = (
+      <SettingsPageProvider actionsContainer={settingsActions}>
+        <ModelGroupsSection />
+      </SettingsPageProvider>
+    )
   } else {
     sectionContent = <ModelCostsSection />
   }
@@ -153,6 +190,35 @@ function ModelCostsSection() {
   }
 
   return <ModelCostSection defaultValue={defaultValue} />
+}
+
+function ModelGroupsSection() {
+  const { t } = useTranslation()
+  const { data, isLoading } = useSystemOptions()
+  const settings = useMemo(
+    () => getOptionValue(data?.data, defaultBillingSettings) as BillingSettings,
+    [data?.data]
+  )
+  if (isLoading) {
+    return (
+      <div className='text-muted-foreground flex min-h-40 items-center justify-center text-sm'>
+        {t('Loading settings...')}
+      </div>
+    )
+  }
+  // Same editor and same stored options as System Settings → Billing →
+  // Group Pricing, surfaced next to the model catalog for convenience.
+  return (
+    <div className='h-full overflow-y-auto pb-6'>
+      <RatioSettingsCard
+        titleKey='Group Management'
+        modelDefaults={getModelDefaults(settings)}
+        groupDefaults={getGroupDefaults(settings)}
+        toolPricesDefault={settings['tool_price_setting.prices']}
+        visibleTabs={['groups']}
+      />
+    </div>
+  )
 }
 
 function DeploymentsSection() {

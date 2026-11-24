@@ -2235,6 +2235,7 @@
     "Group name cannot be changed when editing.": "編集時はグループ名を変更できません。",
     "Group prices cannot be expanded because this expression is not a standard tiered pricing expression.": "この式は標準の段階制料金式ではないため、グループ別価格を展開できません。",
     "Group Pricing": "グループ料金",
+    "Group Management": "グループ管理",
     "Group pricing usage guide": "グループ料金の使用ガイド",
     "group ratio": "グループ倍率",
     "Group Ratio": "グループ倍率",
