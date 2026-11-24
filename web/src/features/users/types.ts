@@ -145,6 +145,11 @@ export interface ManageUserQuotaPayload {
   value: number
 }
 
+export interface BatchDeleteUsersResult {
+  deleted: number
+  failed: { id: number; message: string }[]
+}
+
 // ============================================================================
 // Dialog Types
 // ============================================================================

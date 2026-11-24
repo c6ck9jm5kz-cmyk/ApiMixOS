@@ -986,6 +986,82 @@ func DeleteUser(c *gin.Context) {
 	return
 }
 
+// maxBatchDeleteUsers caps how many users a single batch delete request may target.
+const maxBatchDeleteUsers = 500
+
+type batchDeleteUsersRequest struct {
+	Ids []int `json:"ids"`
+}
+
+type batchDeleteUsersFailure struct {
+	Id      int    `json:"id"`
+	Message string `json:"message"`
+}
+
+// BatchDeleteUsers hard-deletes several users in one request. It applies the same
+// permission rule as DeleteUser to every id and keeps going when a single id fails.
+func BatchDeleteUsers(c *gin.Context) {
+	var req batchDeleteUsersRequest
+	if err := common.DecodeJson(c.Request.Body, &req); err != nil {
+		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+		return
+	}
+	seen := make(map[int]struct{}, len(req.Ids))
+	ids := make([]int, 0, len(req.Ids))
+	for _, id := range req.Ids {
+		if id <= 0 {
+			common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+			return
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		ids = append(ids, id)
+	}
+	if len(ids) == 0 {
+		common.ApiErrorI18n(c, i18n.MsgUserBatchDeleteEmpty)
+		return
+	}
+	if len(ids) > maxBatchDeleteUsers {
+		common.ApiErrorI18n(c, i18n.MsgUserBatchDeleteTooMany, map[string]any{"Max": maxBatchDeleteUsers})
+		return
+	}
+
+	myId := c.GetInt("id")
+	myRole := c.GetInt("role")
+	deleted := 0
+	failed := make([]batchDeleteUsersFailure, 0)
+	for _, id := range ids {
+		if id == myId {
+			failed = append(failed, batchDeleteUsersFailure{Id: id, Message: common.TranslateMessage(c, i18n.MsgUserCannotDeleteSelf)})
+			continue
+		}
+		originUser, err := model.GetUserById(id, false)
+		if err != nil {
+			failed = append(failed, batchDeleteUsersFailure{Id: id, Message: err.Error()})
+			continue
+		}
+		if myRole <= originUser.Role {
+			failed = append(failed, batchDeleteUsersFailure{Id: id, Message: common.TranslateMessage(c, i18n.MsgUserNoPermissionHigherLevel)})
+			continue
+		}
+		if err := model.HardDeleteUserById(id); err != nil {
+			failed = append(failed, batchDeleteUsersFailure{Id: id, Message: err.Error()})
+			continue
+		}
+		recordManageAuditFor(c, originUser.Id, "user.delete", map[string]interface{}{
+			"username": originUser.Username,
+			"id":       originUser.Id,
+		})
+		deleted++
+	}
+	common.ApiSuccess(c, gin.H{
+		"deleted": deleted,
+		"failed":  failed,
+	})
+}
+
 func DeleteSelf(c *gin.Context) {
 	id := c.GetInt("id")
 	user, _ := model.GetUserById(id, false)

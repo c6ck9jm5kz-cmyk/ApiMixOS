@@ -5632,6 +5632,13 @@
     "When it is completed, download the result.": "完成後下載結果。",
     "When the task is completed, download the video from GET /v1/videos/{task_id}/content with the same Authorization header.": "任務完成後，用同樣的 Authorization 請求頭呼叫 GET /v1/videos/{task_id}/content 下載影片。",
     "float (default) or base64": "float（預設）或 base64",
-    "url or b64_json": "url 或 b64_json"
+    "url or b64_json": "url 或 b64_json",
+    "Delete selected": "刪除所選",
+    "Delete selected users?": "刪除所選使用者？",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "將永久刪除 {{count}} 位使用者，此操作無法復原。",
+    "and {{count}} more": "以及其他 {{count}} 位",
+    "Deleted {{count}} user(s)": "已刪除 {{count}} 位使用者",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "已刪除 {{deleted}} 位使用者，{{failed}} 位失敗。第一個錯誤：{{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "刪除 {{failed}} 位使用者失敗：{{message}}"
   }
 }

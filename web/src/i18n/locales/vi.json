@@ -5632,6 +5632,13 @@
     "When it is completed, download the result.": "When it is completed, download the result.",
     "When the task is completed, download the video from GET /v1/videos/{task_id}/content with the same Authorization header.": "When the task is completed, download the video from GET /v1/videos/{task_id}/content with the same Authorization header.",
     "float (default) or base64": "float (default) or base64",
-    "url or b64_json": "url or b64_json"
+    "url or b64_json": "url or b64_json",
+    "Delete selected": "Xóa mục đã chọn",
+    "Delete selected users?": "Xóa các người dùng đã chọn?",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "Thao tác này sẽ xóa vĩnh viễn {{count}} người dùng và không thể hoàn tác.",
+    "and {{count}} more": "và {{count}} người khác",
+    "Deleted {{count}} user(s)": "Đã xóa {{count}} người dùng",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "Đã xóa {{deleted}} người dùng, {{failed}} thất bại. Lỗi đầu tiên: {{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "Xóa {{failed}} người dùng thất bại: {{message}}"
   }
 }

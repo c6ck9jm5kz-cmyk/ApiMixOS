@@ -5632,6 +5632,13 @@
     "When it is completed, download the result.": "When it is completed, download the result.",
     "When the task is completed, download the video from GET /v1/videos/{task_id}/content with the same Authorization header.": "When the task is completed, download the video from GET /v1/videos/{task_id}/content with the same Authorization header.",
     "float (default) or base64": "float (default) or base64",
-    "url or b64_json": "url or b64_json"
+    "url or b64_json": "url or b64_json",
+    "Delete selected": "Delete selected",
+    "Delete selected users?": "Delete selected users?",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "This will permanently delete {{count}} user(s). This action cannot be undone.",
+    "and {{count}} more": "and {{count}} more",
+    "Deleted {{count}} user(s)": "Deleted {{count}} user(s)",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "Failed to delete {{failed}} user(s): {{message}}"
   }
 }
