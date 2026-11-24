@@ -320,7 +320,7 @@ export type SyncSource = 'official' | 'config'
 /**
  * Model tab type
  */
-export type ModelTabCategory = 'metadata' | 'deployments' | 'costs'
+export type ModelTabCategory = 'metadata' | 'deployments' | 'costs' | 'groups'
 
 /**
  * Deployment entity from API

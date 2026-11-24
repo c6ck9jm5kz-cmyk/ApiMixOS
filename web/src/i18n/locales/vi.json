@@ -2235,6 +2235,7 @@
     "Group name cannot be changed when editing.": "Tên nhóm không thể thay đổi khi chỉnh sửa.",
     "Group prices cannot be expanded because this expression is not a standard tiered pricing expression.": "Không thể mở rộng giá theo nhóm vì biểu thức này không phải là biểu thức giá theo bậc tiêu chuẩn.",
     "Group Pricing": "Định giá nhóm",
+    "Group Management": "Quản lý nhóm",
     "Group pricing usage guide": "Hướng dẫn sử dụng định giá theo nhóm",
     "group ratio": "tỷ lệ nhóm",
     "Group Ratio": "Tỷ lệ nhóm",

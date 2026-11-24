@@ -2235,6 +2235,7 @@
     "Group name cannot be changed when editing.": "Le nom du groupe ne peut pas être modifié lors de la modification.",
     "Group prices cannot be expanded because this expression is not a standard tiered pricing expression.": "Les prix par groupe ne peuvent pas être détaillés car cette expression n'est pas une expression tarifaire par paliers standard.",
     "Group Pricing": "Tarification des groupes",
+    "Group Management": "Gestion des groupes",
     "Group pricing usage guide": "Guide d'utilisation des groupes tarifaires",
     "group ratio": "ratio de groupe",
     "Group Ratio": "Ratio de groupe",

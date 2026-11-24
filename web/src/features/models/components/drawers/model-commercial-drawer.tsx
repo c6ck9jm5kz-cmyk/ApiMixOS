@@ -24,6 +24,7 @@ import { toast } from 'sonner'
 
 import { sideDrawerContentClassName } from '@/components/drawer-layout'
 import { Button } from '@/components/ui/button'
+import { DecimalInput } from '@/components/ui/decimal-input'
 import {
   Field,
   FieldDescription,
@@ -364,15 +365,19 @@ export function ModelCommercialDrawer(props: ModelCommercialDrawerProps) {
                     <Field key={field.key}>
                       <FieldLabel>{t(field.label)}</FieldLabel>
                       <div className='flex items-center gap-2'>
-                        <Input
-                          inputMode='decimal'
-                          value={String(cost[field.key])}
-                          onChange={(event) => {
-                            const value = Number(event.target.value)
-                            if (Number.isFinite(value) && value >= 0) {
-                              setCost({ ...cost, [field.key]: value })
-                            }
-                          }}
+                        <DecimalInput
+                          aria-label={t(field.label)}
+                          value={
+                            typeof cost[field.key] === 'number'
+                              ? (cost[field.key] as number)
+                              : undefined
+                          }
+                          onValueChange={(value) =>
+                            setCost((current) => ({
+                              ...current,
+                              [field.key]: value ?? 0,
+                            }))
+                          }
                         />
                         <span className='text-muted-foreground w-28 shrink-0 text-xs'>
                           {field.unit}
@@ -385,7 +390,10 @@ export function ModelCommercialDrawer(props: ModelCommercialDrawerProps) {
                   <ResolutionCostFields
                     value={cost.video_per_second_by_resolution}
                     onChange={(value) =>
-                      setCost({ ...cost, video_per_second_by_resolution: value })
+                      setCost({
+                        ...cost,
+                        video_per_second_by_resolution: value,
+                      })
                     }
                   />
                 )}
@@ -427,15 +435,14 @@ function ResolutionCostFields(props: {
         {resolutions.map((resolution) => (
           <div key={resolution} className='flex items-center gap-2'>
             <span className='w-14 text-sm'>{label(resolution)}</span>
-            <Input
-              inputMode='decimal'
+            <DecimalInput
               aria-label={`${resolution} ${t('Video')}`}
-              placeholder='0'
-              value={props.value[resolution] ?? ''}
-              onChange={(event) => {
-                const value = Number(event.target.value)
-                if (!Number.isFinite(value) || value < 0) return
-                props.onChange({ ...props.value, [resolution]: value })
+              value={props.value[resolution]}
+              onValueChange={(value) => {
+                const next = { ...props.value }
+                if (value === undefined) delete next[resolution]
+                else next[resolution] = value
+                props.onChange(next)
               }}
             />
             <span className='text-muted-foreground text-xs'>$ / sec</span>

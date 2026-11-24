@@ -1,8 +1,27 @@
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
+import { DecimalInput } from '@/components/ui/decimal-input'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 
@@ -90,7 +109,8 @@ export function ModelCostSection({ defaultValue }: { defaultValue: string }) {
     field: keyof CostEntry,
     value: string | boolean | Record<string, number>
   ) => {
-    let normalizedValue: string | number | boolean | Record<string, number> = value
+    let normalizedValue: string | number | boolean | Record<string, number> =
+      value
     if (field === 'currency') {
       normalizedValue = String(value)
     } else if (field === 'enabled') {
@@ -223,13 +243,12 @@ export function ModelCostSection({ defaultValue }: { defaultValue: string }) {
                   ] as const
                 ).map((field) => (
                   <td key={field} className='p-2'>
-                    <Input
+                    <DecimalInput
                       aria-label={`${key} ${field}`}
                       className='w-24'
-                      inputMode='decimal'
                       value={entry[field]}
-                      onChange={(event) =>
-                        updateEntry(key, field, event.target.value)
+                      onValueChange={(value) =>
+                        updateEntry(key, field, String(value ?? 0))
                       }
                     />
                   </td>

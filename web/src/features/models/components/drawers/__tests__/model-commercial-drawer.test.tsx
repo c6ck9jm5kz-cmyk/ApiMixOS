@@ -266,8 +266,83 @@ describe('model commercial drawer upstream settings', () => {
         audio_input_per_second: 0,
         audio_output_per_second: 0,
         video_per_second: 0,
+        video_per_second_by_resolution: {},
         request_fee: 0,
       },
     })
+  })
+
+  test('accepts decimals typed one keystroke at a time', async () => {
+    const requests: Array<{ url: string; data: unknown }> = []
+    const optionsResponse = {
+      success: true,
+      data: [{ key: 'ModelCost', value: '{}' }],
+    }
+    apiClient.get = async () => ({ data: optionsResponse })
+    apiClient.put = async (url, data) => {
+      requests.push({ url, data })
+      return { data: { success: true } }
+    }
+
+    const host = document.createElement('div')
+    document.body.append(host)
+    root = createRoot(host)
+    const testQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    })
+    queryClient = testQueryClient
+    testQueryClient.setQueryData(['system-options'], optionsResponse, {
+      updatedAt: Date.now() + 60_000,
+    })
+
+    await act(async () => {
+      root?.render(
+        <QueryClientProvider client={testQueryClient}>
+          <I18nextProvider i18n={i18n}>
+            <ModelCommercialDrawer
+              open
+              onOpenChange={() => undefined}
+              model={{
+                id: 9,
+                model_name: 'decimal-model',
+                model_type: 'text',
+                status: 1,
+                sync_official: 0,
+                created_time: 1,
+                updated_time: 1,
+                name_rule: 0,
+                bound_channels: [],
+              }}
+            />
+          </I18nextProvider>
+        </QueryClientProvider>
+      )
+    })
+
+    await act(async () => findButton('Upstream Cost').click())
+    await waitForCondition(
+      () => document.querySelector('input[aria-label="Input"]') !== null,
+      'Input cost field did not appear'
+    )
+    const input = document.querySelector<HTMLInputElement>(
+      'input[aria-label="Input"]'
+    )
+    assert.ok(input)
+
+    for (const text of ['', '0', '0.', '0.7', '0.75']) {
+      await act(async () => changeInput(input, text))
+      assert.equal(input.value, text, `box should keep "${text}"`)
+    }
+
+    await act(async () => findButton('Save upstream settings').click())
+    await waitForCondition(
+      () => requests.length === 1,
+      'Commercial settings request was not sent'
+    )
+    const body = requests[0].data as { cost: { input_per_1m: number } }
+    assert.equal(body.cost.input_per_1m, 0.75)
   })
 })
