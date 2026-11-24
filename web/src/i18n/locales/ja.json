@@ -5533,6 +5533,13 @@
     "Pay {{amount}}": "支払額 {{amount}}",
     "Save {{amount}}": "{{amount}} お得",
     "Online top-up unavailable": "オンラインチャージは利用できません",
-    "Sign in to manage API keys, track usage and top up online.": "ログインして API キーの管理、使用量の確認、オンラインチャージができます。"
+    "Sign in to manage API keys, track usage and top up online.": "ログインして API キーの管理、使用量の確認、オンラインチャージができます。",
+    "Delete selected": "選択項目を削除",
+    "Delete selected users?": "選択したユーザーを削除しますか？",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "{{count}} 人のユーザーを完全に削除します。この操作は元に戻せません。",
+    "and {{count}} more": "ほか {{count}} 人",
+    "Deleted {{count}} user(s)": "{{count}} 人のユーザーを削除しました",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "{{deleted}} 人を削除、{{failed}} 人は失敗しました。最初のエラー：{{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "{{failed}} 人のユーザーの削除に失敗しました：{{message}}"
   }
 }

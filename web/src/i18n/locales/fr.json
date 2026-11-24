@@ -5533,6 +5533,13 @@
     "Pay {{amount}}": "Payer {{amount}}",
     "Save {{amount}}": "Économisez {{amount}}",
     "Online top-up unavailable": "Recharge en ligne indisponible",
-    "Sign in to manage API keys, track usage and top up online.": "Connectez-vous pour gérer vos clés API, suivre votre consommation et recharger en ligne."
+    "Sign in to manage API keys, track usage and top up online.": "Connectez-vous pour gérer vos clés API, suivre votre consommation et recharger en ligne.",
+    "Delete selected": "Supprimer la sélection",
+    "Delete selected users?": "Supprimer les utilisateurs sélectionnés ?",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "Cela supprimera définitivement {{count}} utilisateur(s). Cette action est irréversible.",
+    "and {{count}} more": "et {{count}} autre(s)",
+    "Deleted {{count}} user(s)": "{{count}} utilisateur(s) supprimé(s)",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "{{deleted}} utilisateur(s) supprimé(s), {{failed}} échec(s). Première erreur : {{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "Échec de la suppression de {{failed}} utilisateur(s) : {{message}}"
   }
 }

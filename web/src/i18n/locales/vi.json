@@ -5533,6 +5533,13 @@
     "Pay {{amount}}": "Thanh toán {{amount}}",
     "Save {{amount}}": "Tiết kiệm {{amount}}",
     "Online top-up unavailable": "Nạp tiền trực tuyến không khả dụng",
-    "Sign in to manage API keys, track usage and top up online.": "Đăng nhập để quản lý khóa API, theo dõi mức sử dụng và nạp tiền trực tuyến."
+    "Sign in to manage API keys, track usage and top up online.": "Đăng nhập để quản lý khóa API, theo dõi mức sử dụng và nạp tiền trực tuyến.",
+    "Delete selected": "Xóa mục đã chọn",
+    "Delete selected users?": "Xóa các người dùng đã chọn?",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "Thao tác này sẽ xóa vĩnh viễn {{count}} người dùng và không thể hoàn tác.",
+    "and {{count}} more": "và {{count}} người khác",
+    "Deleted {{count}} user(s)": "Đã xóa {{count}} người dùng",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "Đã xóa {{deleted}} người dùng, {{failed}} thất bại. Lỗi đầu tiên: {{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "Xóa {{failed}} người dùng thất bại: {{message}}"
   }
 }

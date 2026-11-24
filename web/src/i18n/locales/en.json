@@ -5533,6 +5533,13 @@
     "Pay {{amount}}": "Pay {{amount}}",
     "Save {{amount}}": "Save {{amount}}",
     "Online top-up unavailable": "Online top-up unavailable",
-    "Sign in to manage API keys, track usage and top up online.": "Sign in to manage API keys, track usage and top up online."
+    "Sign in to manage API keys, track usage and top up online.": "Sign in to manage API keys, track usage and top up online.",
+    "Delete selected": "Delete selected",
+    "Delete selected users?": "Delete selected users?",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "This will permanently delete {{count}} user(s). This action cannot be undone.",
+    "and {{count}} more": "and {{count}} more",
+    "Deleted {{count}} user(s)": "Deleted {{count}} user(s)",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "Failed to delete {{failed}} user(s): {{message}}"
   }
 }

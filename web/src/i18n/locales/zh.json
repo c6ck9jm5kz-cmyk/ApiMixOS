@@ -5533,6 +5533,13 @@
     "Pay {{amount}}": "应付 {{amount}}",
     "Save {{amount}}": "节省 {{amount}}",
     "Online top-up unavailable": "在线充值暂不可用",
-    "Sign in to manage API keys, track usage and top up online.": "登录后即可管理 API 密钥、查看用量，并在线充值额度。"
+    "Sign in to manage API keys, track usage and top up online.": "登录后即可管理 API 密钥、查看用量，并在线充值额度。",
+    "Delete selected": "删除所选",
+    "Delete selected users?": "删除所选用户？",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "将永久删除 {{count}} 个用户，此操作无法撤销。",
+    "and {{count}} more": "以及另外 {{count}} 个",
+    "Deleted {{count}} user(s)": "已删除 {{count}} 个用户",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "已删除 {{deleted}} 个用户，{{failed}} 个失败。首个错误：{{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "删除 {{failed}} 个用户失败：{{message}}"
   }
 }

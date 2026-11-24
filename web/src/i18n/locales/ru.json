@@ -5533,6 +5533,13 @@
     "Pay {{amount}}": "К оплате {{amount}}",
     "Save {{amount}}": "Экономия {{amount}}",
     "Online top-up unavailable": "Онлайн-пополнение недоступно",
-    "Sign in to manage API keys, track usage and top up online.": "Войдите, чтобы управлять API-ключами, следить за расходом и пополнять баланс онлайн."
+    "Sign in to manage API keys, track usage and top up online.": "Войдите, чтобы управлять API-ключами, следить за расходом и пополнять баланс онлайн.",
+    "Delete selected": "Удалить выбранные",
+    "Delete selected users?": "Удалить выбранных пользователей?",
+    "This will permanently delete {{count}} user(s). This action cannot be undone.": "Будет безвозвратно удалено пользователей: {{count}}. Это действие нельзя отменить.",
+    "and {{count}} more": "и ещё {{count}}",
+    "Deleted {{count}} user(s)": "Удалено пользователей: {{count}}",
+    "Deleted {{deleted}} user(s), {{failed}} failed. First error: {{message}}": "Удалено: {{deleted}}, не удалось: {{failed}}. Первая ошибка: {{message}}",
+    "Failed to delete {{failed}} user(s): {{message}}": "Не удалось удалить пользователей: {{failed}}. {{message}}"
   }
 }
