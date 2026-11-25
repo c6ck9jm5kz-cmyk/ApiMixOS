@@ -182,6 +182,44 @@ describe('resolveModelDoc', () => {
   })
 })
 
+describe('endpoint order', () => {
+  test('video models lead with the video endpoint and drop chat', () => {
+    const doc = resolveModelDoc({
+      model: {
+        model_name: 'seedance-2.5-sd8',
+        model_type: 'video',
+        supported_endpoint_types: ['openai', 'openai-video'],
+      },
+      endpointMap: {},
+      baseUrl,
+      content: null,
+      t,
+    })
+    assert.deepEqual(
+      doc.endpoints.map((e) => e.type),
+      ['openai-video']
+    )
+  })
+
+  test('image models lead with image generation but keep chat', () => {
+    const doc = resolveModelDoc({
+      model: {
+        model_name: 'gpt-image-2.5',
+        model_type: 'image',
+        supported_endpoint_types: ['openai', 'image-generation'],
+      },
+      endpointMap: {},
+      baseUrl,
+      content: null,
+      t,
+    })
+    assert.deepEqual(
+      doc.endpoints.map((e) => e.type),
+      ['image-generation', 'openai']
+    )
+  })
+})
+
 describe('getDocCategory', () => {
   test('declared model type wins, otherwise endpoints decide', () => {
     assert.equal(
