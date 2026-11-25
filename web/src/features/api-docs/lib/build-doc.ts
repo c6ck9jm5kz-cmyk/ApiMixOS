@@ -131,6 +131,27 @@ function mergeParams(
   return merged
 }
 
+const PRIMARY_ENDPOINT: Partial<Record<DocCategory, string>> = {
+  video: 'openai-video',
+  image: 'image-generation',
+  embedding: 'embeddings',
+}
+
+/**
+ * Leads with the endpoint that matches the model's category. A video model
+ * served through an OpenAI-type channel also reports the chat endpoint,
+ * which cannot generate video, so it is left out once the video endpoint
+ * is known.
+ */
+function orderEndpointTypes(types: string[], category: DocCategory): string[] {
+  const primary = PRIMARY_ENDPOINT[category]
+  if (!primary || !types.includes(primary)) return types
+  const rest = types.filter(
+    (type) => type !== primary && !(category === 'video' && type === 'openai')
+  )
+  return [primary, ...rest]
+}
+
 export function resolveModelDoc(options: {
   model: DocModelInput
   endpointMap: Record<string, { path?: string; method?: string }>
@@ -141,9 +162,13 @@ export function resolveModelDoc(options: {
   const { model, content, t } = options
   const baseUrl = options.baseUrl.replace(/\/+$/, '')
   const modelName = model.model_name
-  const endpointTypes = model.supported_endpoint_types?.length
-    ? model.supported_endpoint_types
-    : ['openai']
+  const category = getDocCategory(model)
+  const endpointTypes = orderEndpointTypes(
+    model.supported_endpoint_types?.length
+      ? model.supported_endpoint_types
+      : ['openai'],
+    category
+  )
 
   const endpoints = endpointTypes.map((type, index) => {
     const template = getEndpointTemplate(type)
@@ -199,7 +224,7 @@ export function resolveModelDoc(options: {
 
   return {
     modelName,
-    category: getDocCategory(model),
+    category,
     summary: content?.summary || model.description || '',
     mode: content?.mode === 'custom' ? 'custom' : 'auto',
     endpoints,
